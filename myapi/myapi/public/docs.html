@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="API Documentation for Express API">
+    <meta name="theme-color" content="#ffffff">
+    <title>MifNity API's.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['Ubuntu Mono', 'monospace'],
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        :root {
+            --background: #f9fbff;
+            --foreground: #2c3e50;
+            --card: #ffffff;
+            --card-foreground: #2c3e50;
+            --primary: #8b00ff; /* Ungu neon terang */
+            --primary-foreground: #ffffff;
+            --secondary: #4b0082; /* Ungu neon gelap - Indigo */
+            --accent: #8b00ff; /* Ungu neon terang */
+            --muted: #f1f5f9;
+            --muted-foreground: #7f8c8d;
+            --border: rgba(0, 0, 0, 0.08);
+            --radius: 0.5rem;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.12);
+            --gradient-primary: linear-gradient(135deg, #8b00ff 0%, #4b0082 100%); /* Gradient ungu terang ke ungu gelap */
+            --gradient-secondary: linear-gradient(135deg, #4b0082 0%, #2d004d 100%); /* Gradient ungu gelap ke ungu sangat gelap */
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            font-family: 'Inter', sans-serif;
+        }
+
+        header, .bg-white {
+            background-color: var(--card) !important;
+            border-color: var(--border) !important;
+        }
+
+        ::-webkit-scrollbar {
+            display: none !important;
+        }
+
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-category-on-load {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .gradient-text {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide-down { animation: slideDown 0.15s ease-out; }
+        .slide-up { animation: slideUp 0.15s ease-out; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        .method-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            border: none;
+            color: var(--primary-foreground);
+        }
+
+        .method-get { background-color: var(--accent); } /* Ungu neon terang */
+        .method-post { background-color: var(--secondary); } /* Ungu neon gelap */
+        .method-put { background-color: #6a0dad; } /* Ungu medium */
+        .method-delete { background-color: #4b0082; } /* Ungu neon gelap */
+
+        .endpoint-card, .bg-white.border {
+            transition: all 0.2s ease;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            background-color: var(--card);
+        }
+
+        .endpoint-card:hover, .bg-white.border:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        input, select {
+            background-color: var(--card) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--foreground) !important;
+            border-radius: var(--radius) !important;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary) !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(139, 0, 255, 0.1) !important; /* Warna ungu neon terang */
+        }
+
+        .text-slate-600 { color: var(--muted-foreground); }
+        .text-slate-900 { color: var(--foreground); }
+        .border-gray-200 { border-color: var(--border); }
+
+        button[type="submit"] {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+        }
+        button[type="submit"]:hover {
+            filter: brightness(1.1);
+            box-shadow: var(--shadow);
+        }
+
+        button#clear-btn {
+            background: var(--card);
+            color: var(--foreground);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        button#clear-btn:hover {
+            background: var(--muted);
+        }
+
+        .light-response-container {
+            background-color: var(--card);
+            color: var(--foreground);
+            padding: 1rem;
+            border-radius: var(--radius);
+            font-family: 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            line-height: 1.5;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .light-response-section {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .light-response-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .light-response-header {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--muted-foreground);
+            margin-bottom: 0.5rem;
+        }
+        .light-response-header .material-icons { font-size: 1.1rem; }
+
+        .light-response-content {
+            background-color: var(--muted);
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            overflow-x: auto;
+            word-break: break-all;
+            display: block;
+        }
+
+        .light-response-content code, .light-response-content pre {
+            display: inline;
+            white-space: pre-wrap;
+            margin: 0;
+            padding: 0;
+            color: var(--foreground);
+        }
+
+        .copy-icon {
+            cursor: pointer;
+            margin-left: 0.5rem;
+            color: #9ca3af;
+            transition: color 0.2s ease;
+        }
+        .copy-icon:hover { color: var(--primary); }
+        .copy-icon.copied { color: var(--accent); }
+
+        .response-code-text { color: var(--primary); font-size: 0.75rem; }
+        .response-code-curl { color: var(--foreground); font-size: 0.75rem; }
+        .response-code-server { color: var(--foreground); font-size: 0.75rem; }
+        .text-gray-800 { color: var(--foreground); }
+</style>
+</head>
+<body class="antialiased font-mono min-h-screen">
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+    <header class="sticky top-0 z-50 bg-white border-b py-5"></header>
+    <main class="max-w-4xl mx-auto px-8 py-16">
+        <div class="text-left mb-8">
+            <h1 class="text-3xl font-bold gradient-text mb-2">
+                <span id="title"></span></h1>
+            <p class="text-slate-600 text-sm mx-auto mb-4">
+                <span id="description"></span>
+            </p>
+            <p class="mb-4 space-y-1">
+              <a href="https://whatsapp.com/channel/0029Vay0apKJZg49rZz1OF33" 
+                 class="block text-xs font-medium underline hover:text-gray-800 transition-colors">
+                WhatsApp Information Channel.
+              </a>
+              <a href="https://t.me/mifnity" 
+                 class="block text-xs font-medium underline hover:text-gray-800 transition-colors">
+                Contact me.
+              </a>
+            </p>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-slate-600 mb-2">Servers API's</label>
+                <select id="hostSelect" class="w-full px-4 py-3 text-sm focus:outline-none appearance-none">
+                    <option id="valueURL" value="" selected></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="bg-white border p-4 mb-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="text-center">
+              <div class="text-lg font-bold text-slate-900" id="totalEndpoints">0</div>
+              <div class="text-xs text-slate-600">Total Endpoints</div>
+            </div>
+            <div class="text-center">
+              <div class="text-lg font-bold text-slate-900" id="totalCategories">0</div>
+              <div class="text-xs text-slate-600">Categories</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex-1 relative">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <span class="material-icons text-gray-400 text-lg">search</span>
+                </div>
+                <input type="text" id="searchInput" placeholder="Search API endpoints..." class="w-full pl-12 pr-5 py-4 text-sm placeholder-slate-400">
+            </div>
+        </div>
+
+        <div id="content" class="space-y-6">
+            <div id="noResults" class="text-center py-16" style="display: none;">
+                <div class="max-w-md mx-auto">
+                    <h3 class="text-sm text-slate-600 mb-2">No results found.</h3>
+                    <p class="text-xs text-slate-500">Try adjusting your search terms.</p>
+                </div>
+            </div>
+
+            <div id="apiList" class="space-y-6">
+                
+            </div>
+        </div>
+        <div class="flex flex-col mt-10 text-center space-y-2">
+          <p class="text-slate-500 text-xs">
+            © <span id="year"></span> MifNity API's — All Rights Reserved.
+          </p>
+          <p class="text-slate-500 text-xs space-x-3">
+            <a href="/privacy-policy" class="hover:underline">Privacy Policy</a>
+            <span aria-hidden="true">|</span>
+            <a href="/terms-of-service" class="hover:underline">Terms of Service</a>
+          </p>
+        </div>
+    </main>
+    <script>
+      async function loadApiData() {
+        try {
+          const res = await fetch("/openapi.json");
+          const apiData = await res.json();
+          
+          const categories = {};
+          apiData.endpoints.forEach(endpoint => {
+            if (!categories[endpoint.category]) {
+              categories[endpoint.category] = [];
+            }
+            categories[endpoint.category].push(endpoint);
+          });
+          
+          const option = document.getElementById('valueURL');
+          option.value = apiData.baseURL;
+          option.textContent = `${apiData.baseURL} - Development Server`;
+    
+          document.getElementById('title').textContent = apiData.title;
+          document.getElementById('description').textContent = apiData.description;
+          document.getElementById("year").textContent = new Date().getFullYear();
+          document.getElementById('totalEndpoints').textContent = apiData.endpoints.length;
+          document.getElementById('totalCategories').textContent = Object.keys(categories).length;
+    
+          const apiList = document.getElementById('apiList');
+          let categoryIndex = 0;
+    
+          for (const [categoryName, endpoints] of Object.entries(categories)) {
+            const categoryGroup = document.createElement('div');
+            categoryGroup.className = 'category-group mb-6 animate-category-on-load';
+            categoryGroup.setAttribute('data-category', categoryName);
+            categoryGroup.style.animationDelay = `${categoryIndex * 150}ms`;
+    
+            const categoryHeader = `
+              <div class="mb-4">
+                <div class="bg-white border shadow-sm">
+                  <button onclick="toggleCategory(${categoryIndex})" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors duration-150">
+                    <h2 class="font-bold flex items-center text-base">
+                      <span class="material-icons text-lg mr-3 text-gray-800">folder</span>
+                      <span class="truncate max-w-xs text-sm">${categoryName}</span>
+                      <span class="ml-2 text-xs text-gray-800 px-2 py-1">(${endpoints.length})</span>
+                    </h2>
+                    <span class="material-icons transition-transform duration-150" id="category-icon-${categoryIndex}">expand_more</span>
+                  </button>
+                  <div id="category-${categoryIndex}" class="hidden p-4 border-t border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            `;
+    
+            let categoryContent = '';
+            let endpointIndex = 0;
+    
+            endpoints.forEach(endpoint => {
+              const methodBadges = endpoint.methods.map(method => {
+                let colorClass = 'method-get';
+                if (method === 'POST') colorClass = 'method-post';
+                else if (method === 'PUT') colorClass = 'method-put';
+                else if (method === 'DELETE') colorClass = 'method-delete';
+    
+                return `<span class="method-badge ${colorClass}">${method}</span>`;
+              }).join(' ');
+    
+              categoryContent += `
+                <div class="endpoint-card bg-white border p-4 api-item" 
+                     data-method="${endpoint.methods[0]}" 
+                     data-path="${endpoint.route}" 
+                     data-alias="${endpoint.name}" 
+                     data-category="${endpoint.category}">
+                  <div class="flex justify-between items-start mb-2">
+                    <div class="flex flex-wrap gap-1">
+                      ${methodBadges}
+                    </div>
+                    <button onclick="toggleEndpoint(${categoryIndex}, ${endpointIndex})" 
+                            class="text-gray-500 hover:text-gray-700 transition-colors">
+                      <span class="material-icons text-lg" id="endpoint-icon-${categoryIndex}-${endpointIndex}">expand_more</span>
+                    </button>
+                  </div>
+    
+                  <h3 class="font-semibold text-sm font-mono mb-1 truncate" title="${endpoint.route}">${endpoint.route}</h3>
+                  <p class="text-xs text-gray-600 mb-3">${endpoint.description}</p>
+    
+                  <div id="endpoint-${categoryIndex}-${endpointIndex}" class="hidden mt-3 pt-3 border-t border-gray-100">
+                    <div class="text-gray-700 font-bold text-xs mb-2 flex items-center">
+                      <span class="material-icons text-sm mr-1">play_arrow</span>
+                      TRY IT OUT
+                    </div>
+                    <form id="form-${categoryIndex}-${endpointIndex}" 
+                          onsubmit="executeRequest(event, ${categoryIndex}, ${endpointIndex}, '${endpoint.methods[0]}', '${endpoint.route}', 'application/json')">
+                      <div class="mb-3 space-y-2">
+              `;
+    
+              
+              Object.entries(endpoint.paramsSchema).forEach(([paramName, paramSchema]) => {
+                const labelHTML = `
+                  <label class="block text-xs font-medium text-slate-600">
+                    ${paramName} ${paramSchema.required ? '<span class="text-red-500">*</span>' : ''}
+                  </label>`;
+
+                if (paramSchema.type === "file") {
+                  categoryContent += `
+                    <div>
+                      ${labelHTML}
+                      <input type="file" name="${paramName}" 
+                            class="w-full text-xs border p-1 focus:outline-none"
+                            ${paramSchema.required ? 'required' : ''}>
+                    </div>`;
+                } else if (paramSchema.enum && Array.isArray(paramSchema.enum)) {
+                  const optionsHTML = paramSchema.enum.map(optionValue => {
+                    const isSelected = paramSchema.default === optionValue ? ' selected' : '';
+                    return `<option value="${optionValue}"${isSelected}>${optionValue}</option>`;
+                  }).join('');
+                  
+                  categoryContent += `
+                    <div>
+                      ${labelHTML}
+                      <select name="${paramName}" class="w-full px-3 py-2 border text-xs focus:outline-none appearance-none">
+                        ${optionsHTML}
+                      </select>
+                    </div>`;
+                } else {
+                  categoryContent += `
+                    <div>
+                      ${labelHTML}
+                      <div class="text-xs text-gray-400 mb-1">
+                        Type: ${paramSchema.type}${paramSchema.minLength ? `, Min Length: ${paramSchema.minLength}` : ''}
+                      </div>
+                      <input type="text" name="${paramName}" class="w-full px-3 py-2 border text-xs focus:outline-none placeholder:text-slate-400" 
+                          placeholder="${paramName}" ${paramSchema.required ? 'required' : ''}
+                          ${paramSchema.default ? `value="${paramSchema.default}"` : ''}>
+                    </div>`;
+                }
+              });
+    
+              if (Object.keys(endpoint.paramsSchema).length === 0) {
+                categoryContent += `
+                  <div class="text-xs text-gray-500 italic">
+                    No parameters required for this endpoint.
+                  </div>
+                `;
+              }
+    
+              categoryContent += `
+                      </div>
+                      <div class="flex">
+                        <button type="submit" class="font-semibold text-white px-4 py-2 text-xs font-medium">
+                          Execute
+                        </button>
+                        <button type="button" id="clear-${categoryIndex}-${endpointIndex}" onclick="clearResponse(${categoryIndex}, ${endpointIndex})" class="hidden bg-white border hover:border-gray-600 font-semibold px-4 py-2 text-xs font-medium transition-colors duration-150 ml-2">
+                          Clear
+                        </button>
+                      </div>
+                    </form>
+    
+                    <div id="response-${categoryIndex}-${endpointIndex}" class="hidden mt-3">
+                      <div class="text-gray-700 font-bold text-xs mb-2 flex items-center">
+                        <span class="material-icons text-sm mr-1">code</span>
+                        RESPONSE
+                      </div>
+
+                      <div class="light-response-container">
+                        <div class="light-response-section">
+                            <div class="light-response-header">
+                                <span class="material-icons text-sm mr-1">link</span>
+                                <span class="flex-1">Request URL</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy copy-icon" data-copy-id="request-url-content-${categoryIndex}-${endpointIndex}"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            </div>
+                            <div class="light-response-content">
+                                <code id="request-url-content-${categoryIndex}-${endpointIndex}" class="response-code-text"></code>
+                            </div>
+                        </div>
+
+                        <div class="light-response-section">
+                            <div class="light-response-header">
+                                <span class="material-icons text-sm mr-1">code</span>
+                                <span class="flex-1">Curl</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy copy-icon" data-copy-id="curl-content-${categoryIndex}-${endpointIndex}"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            </div>
+                            <div class="light-response-content">
+                                <pre><code id="curl-content-${categoryIndex}-${endpointIndex}" class="response-code-curl"></code></pre>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="light-response-header">
+                                <span class="material-icons text-sm mr-1">storage</span>
+                                <span class="flex-1">Server Response</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy copy-icon" data-copy-id="server-response-content-${categoryIndex}-${endpointIndex}"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            </div>
+                            <div class="light-response-content max-h-60 overflow-auto">
+                                <code id="server-response-content-${categoryIndex}-${endpointIndex}" class="response-code-server"></code>
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+    
+              endpointIndex++;
+            });
+    
+            const categoryFooter = `
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+    
+            categoryGroup.innerHTML = categoryHeader + categoryContent + categoryFooter;
+            apiList.appendChild(categoryGroup);
+            categoryIndex++;
+          }
+    
+        } catch (err) {
+          console.error("Gagal load openapi.json:", err);
+        } finally {
+            document.getElementById('loader').classList.add('hidden');
+        }
+      }
+    
+      document.addEventListener('DOMContentLoaded', () => {
+        loadApiData();
+      });
+    
+      function toggleCategory(categoryIndex) {
+        const content = document.getElementById(`category-${categoryIndex}`);
+        const icon = document.getElementById(`category-icon-${categoryIndex}`);
+    
+        if (content.classList.contains('hidden')) {
+          content.classList.remove('hidden');
+          content.classList.add('slide-down');
+          icon.style.transform = 'rotate(180deg)';
+        } else {
+          content.classList.add('slide-up');
+          icon.style.transform = 'rotate(0deg)';
+          setTimeout(() => {
+            content.classList.add('hidden');
+            content.classList.remove('slide-up', 'slide-down');
+          }, 150);
+        }
+      }
+    
+      function toggleEndpoint(categoryIndex, endpointIndex) {
+        const content = document.getElementById(`endpoint-${categoryIndex}-${endpointIndex}`);
+        const icon = document.getElementById(`endpoint-icon-${categoryIndex}-${endpointIndex}`);
+    
+        if (content.classList.contains('hidden')) {
+          content.classList.remove('hidden');
+          content.classList.add('slide-down');
+          icon.style.transform = 'rotate(180deg)';
+        } else {
+          content.classList.add('slide-up');
+          icon.style.transform = 'rotate(0deg)';
+          setTimeout(() => {
+            content.classList.add('hidden');
+            content.classList.remove('slide-up', 'slide-down');
+          }, 150);
+        }
+      }
+    
+      function clearResponse(categoryIndex, endpointIndex) {
+        const responseElement = document.getElementById(`response-${categoryIndex}-${endpointIndex}`);
+        const clearButton = document.getElementById(`clear-${categoryIndex}-${endpointIndex}`);
+        
+        document.getElementById(`request-url-content-${categoryIndex}-${endpointIndex}`).textContent = '';
+        document.getElementById(`curl-content-${categoryIndex}-${endpointIndex}`).textContent = '';
+        document.getElementById(`server-response-content-${categoryIndex}-${endpointIndex}`).textContent = '';
+    
+        responseElement.classList.add('slide-up');
+        setTimeout(() => {
+          responseElement.classList.add('hidden');
+          responseElement.classList.remove('slide-up', 'slide-down');
+          clearButton.classList.add('hidden');
+        }, 150);
+      }
+
+      function copyToClipboard(element) {
+        const elementId = element.getAttribute('data-copy-id');
+        const contentElement = document.getElementById(elementId);
+        
+        let textToCopy = contentElement.textContent.trim();
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                element.classList.add('copied');
+                setTimeout(() => {
+                    element.classList.remove('copied');
+                }, 1000); 
+            }).catch(err => {
+                fallbackCopyTextToClipboard(textToCopy, element);
+            });
+        } else {
+            fallbackCopyTextToClipboard(textToCopy, element);
+        }
+      }
+
+      function fallbackCopyTextToClipboard(text, element) {
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          textArea.style.top = "0";
+          textArea.style.left = "0";
+          textArea.style.position = "fixed";
+
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+
+          try {
+              document.execCommand('copy');
+              element.classList.add('copied');
+              setTimeout(() => {
+                  element.classList.remove('copied');
+              }, 1000);
+          } catch (err) {
+              console.error('Oops, unable to copy', err);
+          }
+
+          document.body.removeChild(textArea);
+      }
+
+      document.addEventListener('click', function(e) {
+        if (e.target && e.target.closest('.copy-icon')) {
+          copyToClipboard(e.target.closest('.copy-icon'));
+        }
+      });
+    
+      async function executeRequest(event, categoryIndex, endpointIndex, method, path, contentType) {
+        event.preventDefault();
+    
+        const form = event.target;
+        const responseElement = document.getElementById(`response-${categoryIndex}-${endpointIndex}`);
+        const requestUrlContent = document.getElementById(`request-url-content-${categoryIndex}-${endpointIndex}`);
+        const curlContent = document.getElementById(`curl-content-${categoryIndex}-${endpointIndex}`);
+        const serverResponseContent = document.getElementById(`server-response-content-${categoryIndex}-${endpointIndex}`);
+        const clearButton = document.getElementById(`clear-${categoryIndex}-${endpointIndex}`);
+        const hostSelect = document.getElementById('hostSelect');
+        const selectedHost = hostSelect.value;
+        let fullUrl = selectedHost + path;
+        let curlCommand = "";
+    
+        try {
+          let requestConfig = {
+            method: method,
+            headers: {}
+          };
+    
+          const formData = new FormData(form);
+          let hasFile = false;
+          let jsonBody = {};
+          let params = new URLSearchParams();
+          
+          form.querySelectorAll("input[type=file]").forEach(input => {
+             if (input.files.length > 0 && input.files[0]) hasFile = true;
+          });
+    
+          if (method === 'GET') {
+            for (let [key, value] of formData.entries()) {
+              if (value) {
+                params.append(key, value);
+              }
+            }
+            if (params.toString()) {
+              fullUrl += '?' + params.toString();
+            }
+            curlCommand = `curl -X ${method} "${fullUrl}"`;
+          } else {
+            if (hasFile) {
+              requestConfig.body = formData;
+              
+              let curlParts = [`curl -X ${method}`];
+              for (let [key, value] of formData.entries()) {
+                  if (value instanceof File && value.name) {
+                      curlParts.push(`-F "${key}=@${value.name}"`);
+                  } else if (value) {
+                      curlParts.push(`-F "${key}=${value}"`);
+                  }
+              }
+              curlParts.push(`"${fullUrl}"`);
+              curlCommand = curlParts.join(" \\\n  ");
+
+            } else {
+              for (let [key, value] of formData.entries()) {
+                if (value) {
+                  jsonBody[key] = value;
+                }
+              }
+
+              if (Object.keys(jsonBody).length > 0) {
+                const jsonString = JSON.stringify(jsonBody);
+                requestConfig.headers['Content-Type'] = 'application/json';
+                requestConfig.body = jsonString;
+
+                const curlParts = [
+                    `curl -X ${method}`,
+                    '-H "Content-Type: application/json"',
+                    `-d '${jsonString.replace(/'/g, "'\\''")}'`,
+                    `"${fullUrl}"`
+                ];
+                curlCommand = curlParts.join(" \\\n  ");
+              } else {
+                  curlCommand = `curl -X ${method} "${fullUrl}"`;
+              }
+            }
+          }
+    
+          requestUrlContent.textContent = fullUrl;
+          curlContent.textContent = curlCommand;
+          serverResponseContent.innerHTML = '<span class="text-gray-800">Loading...</span>';
+          responseElement.classList.remove('hidden');
+          responseElement.classList.add('slide-down');
+    
+          const response = await fetch(fullUrl, requestConfig);
+          const respContentType = response.headers.get("content-type");
+    
+          if (respContentType && respContentType.includes("application/json")) {
+            const responseData = await response.json();
+            const bodyText = JSON.stringify(responseData, null, 2);
+            serverResponseContent.innerHTML = `<pre class="whitespace-pre-wrap">${bodyText}</pre>`;
+          } else if (respContentType && respContentType.startsWith("image/")) {
+            const blob = await response.blob();
+            const imageUrl = URL.createObjectURL(blob);
+            serverResponseContent.innerHTML = `<img src="${imageUrl}" alt="API Image" class="max-w-full rounded border border-gray-300"/>`;
+          } else {
+            const textData = await response.text();
+            serverResponseContent.innerHTML = `<pre class="whitespace-pre-wrap">${textData}</pre>`;
+          }
+    
+        } catch (error) {
+          serverResponseContent.innerHTML = `
+              <div class="text-red-600">Error: ${error.message}</div>
+          `;
+          responseElement.classList.remove('hidden');
+          responseElement.classList.add('slide-down');
+        } finally {
+          clearButton.classList.remove('hidden');
+        }
+      }
+    
+      let searchInput, apiItems, noResults, apiListContainer;
+    
+      window.addEventListener('load', () => {
+        searchInput = document.getElementById('searchInput');
+        apiItems = document.querySelectorAll('.api-item');
+        noResults = document.getElementById('noResults');
+        apiListContainer = document.getElementById('apiList');
+    
+        searchInput.addEventListener('input', function() {
+          applyFilters();
+        });
+        
+        const observer = new MutationObserver(() => {
+            apiItems = document.querySelectorAll('.api-item');
+            observer.disconnect();
+        });
+        observer.observe(apiListContainer, { childList: true, subtree: true });
+      });
+
+      function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+    
+        const categoryGroups = document.querySelectorAll('.category-group');
+    
+        categoryGroups.forEach(group => {
+          let hasVisibleItems = false;
+          
+          const groupItems = group.querySelectorAll('.api-item');
+    
+          groupItems.forEach(item => {
+            const path = item.getAttribute('data-path').toLowerCase();
+            const alias = item.getAttribute('data-alias').toLowerCase();
+            const method = item.getAttribute('data-method').toLowerCase();
+            const category = item.getAttribute('data-category').toLowerCase();
+    
+            const searchMatch = path.includes(searchTerm) ||
+                              alias.includes(searchTerm) ||
+                              method.includes(searchTerm) ||
+                              category.includes(searchTerm);
+    
+            if (searchMatch) {
+              item.style.display = 'block';
+              hasVisibleItems = true;
+              visibleCount++;
+            } else {
+              item.style.display = 'none';
+            }
+          });
+    
+          if (hasVisibleItems) {
+            group.style.display = 'block';
+          } else {
+            group.style.display = 'none';
+          }
+        });
+    
+        if (visibleCount === 0) {
+          noResults.style.display = 'block';
+          apiListContainer.style.display = 'none';
+        } else {
+          noResults.style.display = 'none';
+          apiListContainer.style.display = 'block';
+        }
+      }
+    </script>
+</body>
+</html>
