@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MifNity API's</title>
+
+    <!-- THEME COLOR -->
+    <meta name="theme-color" content="#7c3aed">
+
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Manrope', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        primary: '#6d28d9',
+                        neon: '#a855f7',
+                        bg: '#f8f7ff',
+                        card: '#ffffff',
+                        border: '#e5e7eb',
+                        text: '#1e1b4b'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { font-family: 'Manrope', sans-serif; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+
+        body {
+            background: linear-gradient(135deg, #f8f7ff, #ffffff);
+            color: #1e1b4b;
+            overflow-x: hidden;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background-image:
+                linear-gradient(rgba(124,58,237,.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124,58,237,.05) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        .step-item {
+            border-left: 2px solid rgba(168,85,247,.35);
+        }
+
+        #sidebar {
+            box-shadow: 0 0 30px rgba(168,85,247,.25);
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+<div class="bg-grid"></div>
+
+<div id="sidebarOverlay" onclick="toggleSidebar()"
+     class="fixed inset-0 bg-white/80 z-[90] hidden opacity-0 transition-opacity duration-300 backdrop-blur-md"></div>
+
+<aside id="sidebar"
+       class="fixed top-0 left-0 h-full w-72 bg-card border-r border-border z-[100]
+              transition-transform duration-300 transform -translate-x-full lg:translate-x-0">
+
+    <div class="flex flex-col h-full">
+        <div class="p-8 flex items-center justify-between border-b border-border">
+            <h1 class="text-2xl font-extrabold tracking-tighter text-primary">
+                MifNity<span class="text-neon">.</span>
+            </h1>
+            <button onclick="toggleSidebar()" class="lg:hidden text-primary">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-6 py-8">
+            <nav class="space-y-1">
+    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-2">
+        Menu
+    </p>
+
+    <!-- HOME (ACTIVE) -->
+    <a href="/"
+       class="flex items-center gap-3 py-3 px-4 text-sm
+              bg-gradient-to-r from-primary to-neon
+              text-white font-bold rounded-xl shadow-lg">
+        <span class="material-icons text-lg">home</span>
+        Home
+    </a>
+
+    <!-- DOCUMENTATION -->
+    <a href="/docs"
+       class="flex items-center gap-3 py-3 px-4 text-sm
+              text-gray-500 hover:bg-purple-50 hover:text-primary
+              rounded-xl transition-all">
+        <span class="material-icons text-lg">description</span>
+        Documentation
+    </a>
+
+</nav>
+        </div>
+    </div>
+</aside>
+
+<main class="lg:ml-72 min-h-screen flex flex-col relative z-10">
+
+<header class="bg-white/70 backdrop-blur-xl border-b border-border px-6 py-5 lg:px-12
+               flex items-center justify-between">
+    <button onclick="toggleSidebar()" class="lg:hidden p-2 text-primary">
+        <span class="material-icons">menu</span>
+    </button>
+    <div class="text-[10px] font-mono text-gray-400">v2.1.0</div>
+</header>
+
+<section class="px-6 lg:px-12 py-20 lg:py-32 max-w-5xl">
+
+    <h2 class="text-7xl lg:text-9xl font-extrabold tracking-tighter mb-8 leading-none
+               bg-gradient-to-r from-primary to-neon bg-clip-text text-transparent">
+        MifNity API's.
+    </h2>
+
+    <p class="text-gray-500 text-lg lg:text-2xl max-w-2xl mb-12 font-medium">
+        A streamlined API ecosystem for modern developers. Clean, fast, and ready to use.
+    </p>
+
+    <a href="/docs"
+       class="inline-block px-12 py-5 rounded-2xl font-bold text-lg
+              text-white bg-gradient-to-r from-primary to-neon
+              shadow-xl hover:scale-[1.02] transition">
+        Get Started
+    </a>
+
+    <div class="mt-32 space-y-16">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-[0.3em]">
+            Getting Started
+        </h3>
+
+        <div class="space-y-12">
+            <div class="step-item pl-10 relative">
+                <span class="absolute -left-4 top-0 w-8 h-8
+                             bg-gradient-to-br from-primary to-neon
+                             rounded-full flex items-center justify-center
+                             text-xs text-white font-black shadow-lg">1</span>
+                <h4 class="font-bold text-xl mb-2">Choose Your Category</h4>
+                <p class="text-gray-500">Browse API categories from sidebar.</p>
+            </div>
+
+            <div class="step-item pl-10 relative">
+                <span class="absolute -left-4 top-0 w-8 h-8
+                             bg-gradient-to-br from-primary to-neon
+                             rounded-full flex items-center justify-center
+                             text-xs text-white font-black shadow-lg">2</span>
+                <h4 class="font-bold text-xl mb-2">Read the Docs</h4>
+                <p class="text-gray-500">Check endpoint parameters and examples.</p>
+            </div>
+
+            <div class="step-item pl-10 relative">
+                <span class="absolute -left-4 top-0 w-8 h-8
+                             bg-gradient-to-br from-primary to-neon
+                             rounded-full flex items-center justify-center
+                             text-xs text-white font-black shadow-lg">3</span>
+                <h4 class="font-bold text-xl mb-2">Make Your Request</h4>
+                <p class="text-gray-500">Send HTTP requests and integrate JSON.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="mt-auto border-t border-border p-12 text-center">
+    <h2 class="text-2xl font-extrabold tracking-tighter text-primary">
+        MifNity API's<span class="text-neon">.</span>
+    </h2>
+    <p class="text-xs font-mono text-gray-400 uppercase tracking-widest">© 2026</p>
+</footer>
+
+</main>
+
+<script>
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const isHidden = sidebar.classList.contains('-translate-x-full');
+
+    if (isHidden) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+        setTimeout(() => overlay.classList.add('opacity-100'), 10);
+        document.body.style.overflow = 'hidden';
+    } else {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.remove('opacity-100');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        }, 300);
+    }
+}
+</script>
+
+</body>
+</html>
